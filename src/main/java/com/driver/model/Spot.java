@@ -7,22 +7,20 @@ import java.util.List;
 @Entity
 public class Spot {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private int id;
 
     @Enumerated(EnumType.STRING)
-    SpotType spotType;
+    private SpotType spotType;
 
-    int pricePerHour;
+    private int pricePerHour;
 
-    Boolean occupied;
-
+    private Boolean occupied;
     @ManyToOne
     @JoinColumn
     ParkingLot parkingLot;
-
     @OneToMany(mappedBy = "spot", cascade = CascadeType.ALL)
-    List<Reservation> reservationList = new ArrayList<>();
+    List<Reservation> reservationList;
 
     public Spot() {
     }
@@ -60,7 +58,7 @@ public class Spot {
         this.pricePerHour = pricePerHour;
     }
 
-    public Boolean isOccupied() {
+    public Boolean getOccupied() {
         return occupied;
     }
 

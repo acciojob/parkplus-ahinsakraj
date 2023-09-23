@@ -5,20 +5,18 @@ import javax.persistence.*;
 @Entity
 public class Reservation {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private int id;
 
-    int numberOfHours;
-
+    private int numberOfHours;
     @ManyToOne
     @JoinColumn
     User user;
-
     @ManyToOne
     @JoinColumn
     Spot spot;
-
-    @OneToOne(mappedBy = "reservation", cascade = CascadeType.ALL)
+    @OneToOne
+    @JoinColumn
     Payment payment;
 
     public Reservation() {
@@ -31,7 +29,6 @@ public class Reservation {
         this.spot = spot;
         this.payment = payment;
     }
-
 
     public int getId() {
         return id;

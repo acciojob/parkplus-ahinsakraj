@@ -6,12 +6,9 @@ import com.driver.model.Reservation;
 import com.driver.model.Spot;
 import com.driver.repository.PaymentRepository;
 import com.driver.repository.ReservationRepository;
-import com.driver.repository.SpotRepository;
 import com.driver.services.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class PaymentServiceImpl implements PaymentService {
@@ -22,52 +19,39 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public Payment pay(Integer reservationId, int amountSent, String mode) throws Exception {
+        //Attempt a payment of amountSent for reservationId using the given mode ("cASh", "card", or "upi")
+        //If the amountSent is less than bill, throw "Insufficient Amount" exception, otherwise update payment attributes
+        //If the mode contains a string other than "cash", "card", or "upi" (any character in uppercase or lowercase),
+        // throw "Payment mode not detected" exception.
+        //Note that the reservationId always exists
+        Reservation reservation=reservationRepository2.findById(reservationId).get();
+        Spot spot=reservation.getSpot();
+        int bill=reservation.getNumberOfHours()*spot.getPricePerHour();
 
-
-        // Validate and find reservation
-        Optional<Reservation> optionalReservation = reservationRepository2.findById(reservationId);
-        if(!optionalReservation.isPresent()) {
-            return new Payment();
+        Payment payment=new Payment();
+        payment.setReservation(reservation);
+        String updatedMode=mode.toUpperCase();
+        payment.setPaymentCompleted(false);
+        if (updatedMode.equals("CASH")){
+            payment.setPaymentMode(PaymentMode.CASH);
         }
-        Reservation reservation = optionalReservation.get();
-
-        // Get the reservation member to be updated
-        Payment payment = reservation.getPayment();
-        Spot spot = reservation.getSpot();
-
-
-        // format Mode
-        mode = mode.toUpperCase();
-        switch (mode) {
-            case "CASH":
-                payment.setPaymentMode(PaymentMode.CASH);
-                break;
-            case "UPI":
-                payment.setPaymentMode(PaymentMode.UPI);
-                break;
-            case "CARD":
-                payment.setPaymentMode(PaymentMode.CARD);
-                break;
-            default:
-                throw new Exception("Payment mode not detected");
+        else if (updatedMode.equals("CARD")){
+            payment.setPaymentMode(PaymentMode.CARD);
         }
-
-        // Calculate price
-        int pricePerHour = spot.getPricePerHour();
-        int timeInHours = reservation.getNumberOfHours();
-        int totalPrice = pricePerHour * timeInHours;
-
-        // validate amount
-        if(amountSent < totalPrice) {
+        else if(updatedMode.equals("UPI")){
+            payment.setPaymentMode(PaymentMode.UPI);
+        }
+        else {
+            throw new Exception("Payment mode not detected");
+        }
+        if (amountSent<bill){
             throw new Exception("Insufficient Amount");
         }
-
-
-        spot.setOccupied(Boolean.TRUE);
-        payment.setPaymentCompleted(Boolean.TRUE);
-
-        // It will save the updated spot and payment details
-        Reservation savedReservation = reservationRepository2.save(reservation);
+        spot.setOccupied(false);
+        payment.setPaymentCompleted(true);
+        payment.setReservation(reservation);
+        reservation.setPayment(payment);
+        reservationRepository2.save(reservation);
         return payment;
     }
 }

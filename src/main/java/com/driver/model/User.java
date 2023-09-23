@@ -7,20 +7,14 @@ import java.util.List;
 @Entity
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private int id;
 
-    String name;
-
-    String phoneNumber;
-
-    String password;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    List<Reservation> reservationList = new ArrayList<>();
-
-    public User() {
-    }
+    private String name;
+    private String phoneNumber;
+    private String password;
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
+    List<Reservation> reservationList;
 
     public User(int id, String name, String phoneNumber, String password, List<Reservation> reservationList) {
         this.id = id;
@@ -28,6 +22,9 @@ public class User {
         this.phoneNumber = phoneNumber;
         this.password = password;
         this.reservationList = reservationList;
+    }
+
+    public User() {
     }
 
     public int getId() {

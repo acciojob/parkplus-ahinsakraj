@@ -5,14 +5,12 @@ import javax.persistence.*;
 @Entity
 public class Payment {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private int id;
 
-    Boolean paymentCompleted;
-
+    private Boolean paymentCompleted;
     @Enumerated(EnumType.STRING)
-    PaymentMode paymentMode;
-
+    private PaymentMode paymentMode;
     @OneToOne
     @JoinColumn
     Reservation reservation;
